@@ -40,57 +40,92 @@
     <textarea id="plaintext" placeholder="Enter your text here"></textarea><br>
     <label for="keyword">Enter Keyword:</label><br>
     <input type="text" id="keyword" placeholder="Enter your keyword here"><br>
-    <button onclick="encrypt()">Encrypt</button>
-    <button onclick="decrypt()">Decrypt</button><br>
+    <button onclick="encryptStepByStep()">Encrypt Step by Step</button>
+    <button onclick="decryptStepByStep()">Decrypt Step by Step</button><br>
     <label for="ciphertext">Output:</label><br>
-    <textarea id="ciphertext" readonly></textarea>
+    <textarea id="ciphertext" readonly></textarea><br>
+    <button onclick="nextStep()">Next Step</button>
 </div>
 
 <script>
-function encrypt() {
-    var plaintext = document.getElementById("plaintext").value.toUpperCase().replace(/[^A-Z]/g, '');
-    var keyword = document.getElementById("keyword").value.toUpperCase().replace(/[^A-Z]/g, '');
+var plaintext = '';
+var keyword = '';
+var step = 0;
+var result = '';
+
+function encryptStepByStep() {
+    plaintext = document.getElementById("plaintext").value.toUpperCase().replace(/[^A-Z]/g, '');
+    keyword = document.getElementById("keyword").value.toUpperCase().replace(/[^A-Z]/g, '');
     
     if (plaintext === '' || keyword === '') {
         alert("Please enter both text and keyword.");
         return;
     }
     
-    var ciphertext = '';
-    var keywordIndex = 0;
-    
-    for (var i = 0; i < plaintext.length; i++) {
-        var charCode = plaintext.charCodeAt(i) - 65;
-        var keywordCharCode = keyword.charCodeAt(keywordIndex % keyword.length) - 65;
-        var encryptedCharCode = (charCode + keywordCharCode) % 26 + 65;
-        ciphertext += String.fromCharCode(encryptedCharCode);
-        keywordIndex++;
-    }
-    
-    document.getElementById("ciphertext").value = ciphertext;
+    step = 0;
+    result = '';
+    performEncryptionStep();
 }
 
-function decrypt() {
-    var ciphertext = document.getElementById("plaintext").value.toUpperCase().replace(/[^A-Z]/g, '');
-    var keyword = document.getElementById("keyword").value.toUpperCase().replace(/[^A-Z]/g, '');
+function decryptStepByStep() {
+    ciphertext = document.getElementById("plaintext").value.toUpperCase().replace(/[^A-Z]/g, '');
+    keyword = document.getElementById("keyword").value.toUpperCase().replace(/[^A-Z]/g, '');
     
     if (ciphertext === '' || keyword === '') {
         alert("Please enter both text and keyword.");
         return;
     }
     
-    var plaintext = '';
-    var keywordIndex = 0;
-    
-    for (var i = 0; i < ciphertext.length; i++) {
-        var charCode = ciphertext.charCodeAt(i) - 65;
-        var keywordCharCode = keyword.charCodeAt(keywordIndex % keyword.length) - 65;
-        var decryptedCharCode = (charCode - keywordCharCode + 26) % 26 + 65;
-        plaintext += String.fromCharCode(decryptedCharCode);
-        keywordIndex++;
+    step = 0;
+    result = '';
+    performDecryptionStep();
+}
+
+function performEncryptionStep() {
+    if (step >= plaintext.length) {
+        document.getElementById("ciphertext").value = result;
+        return;
     }
     
-    document.getElementById("ciphertext").value = plaintext;
+    var charCode = plaintext.charCodeAt(step) - 65;
+    var keywordCharCode = keyword.charCodeAt(step % keyword.length) - 65;
+    var encryptedCharCode = (charCode + keywordCharCode) % 26 + 65;
+    result += String.fromCharCode(encryptedCharCode);
+    
+    document.getElementById("ciphertext").value = result;
+    step++;
+    setTimeout(performEncryptionStep, 1000);
+}
+
+function performDecryptionStep() {
+    if (step >= ciphertext.length) {
+        document.getElementById("ciphertext").value = result;
+        return;
+    }
+    
+    var charCode = ciphertext.charCodeAt(step) - 65;
+    var keywordCharCode = keyword.charCodeAt(step % keyword.length) - 65;
+    var decryptedCharCode = (charCode - keywordCharCode + 26) % 26 + 65;
+    result += String.fromCharCode(decryptedCharCode);
+    
+    document.getElementById("ciphertext").value = result;
+    step++;
+    setTimeout(performDecryptionStep, 1000);
+}
+
+function nextStep() {
+    if (result === '') {
+        alert("Please perform encryption or decryption first.");
+        return;
+    }
+    
+    if (step >= result.length) {
+        alert("End of process.");
+        return;
+    }
+    
+    alert("Next character: " + result.charAt(step));
+    step++;
 }
 </script>
 
